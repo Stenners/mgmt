@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, writeBatch } from 'firebase/firestore';
 import { Todo } from '../types/todo';
 
 export const createTodo = async (todo: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>) => {

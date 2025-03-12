@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { doc, getDoc, setDoc, Timestamp, collection } from 'firebase/firestore';
+import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { UserData } from '../types/user';
 import { Organisation } from '../types/organisation';

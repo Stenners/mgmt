@@ -3,7 +3,7 @@ import { title as titleStyle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { useAuth } from '@/contexts/AuthContext';
 import { MeetingNote } from '@/types/meeting';
-import { createMeetingNote, getMeetingNotes, updateMeetingNote, generateAiSummary, deleteMeetingNote } from '@/services/meetingService';
+import { createMeetingNote, getMeetingNotes, updateMeetingNote, deleteMeetingNote } from '@/services/meetingService';
 import { button as buttonStyles } from "@heroui/theme";
 import { Modal } from '@/components/Modal';
 import { TrashIcon } from '../components/icons/index';

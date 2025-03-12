@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, addDoc, updateDoc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
 import { MeetingNote } from '../types/meeting';
 
 export const createMeetingNote = async (meetingNote: Omit<MeetingNote, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -58,14 +58,14 @@ export const updateMeetingNote = async (id: string, updates: Partial<MeetingNote
   }
 };
 
-export const generateAiSummary = async (notes: string): Promise<{ summary: string; insights: string }> => {
-  // This would be your AI service integration
-  // For now, returning mock data
-  return {
-    summary: 'AI-generated summary will appear here',
-    insights: 'AI-generated insights will appear here'
-  };
-};
+// export const generateAiSummary = async (notes: string): Promise<{ summary: string; insights: string }> => {
+//   // This would be your AI service integration
+//   // For now, returning mock data
+//   return {
+//     summary: 'AI-generated summary will appear here',
+//     insights: 'AI-generated insights will appear here'
+//   };
+// };
 
 export const deleteMeetingNote = async (id: string, userId: string) => {
   try {
