@@ -7,10 +7,13 @@ export const createTodo = async (todo: Omit<Todo, 'id' | 'createdAt' | 'updatedA
     const userDocRef = doc(db, 'users', todo.createdBy);
     const todosCollectionRef = collection(userDocRef, 'todos');
     
-    // Get the highest order number
-    const todosQuery = query(todosCollectionRef, orderBy('order', 'desc'), where('completed', '==', false));
-    const snapshot = await getDocs(todosQuery);
-    const highestOrder = snapshot.empty ? 0 : snapshot.docs[0].data().order || 0;
+    // Get all todos and find the highest order number in memory
+    const snapshot = await getDocs(todosCollectionRef);
+    const todos = snapshot.docs.map(doc => doc.data());
+    const activeTodos = todos.filter(t => !t.completed);
+    const highestOrder = activeTodos.length > 0 
+      ? Math.max(...activeTodos.map(t => t.order || 0))
+      : 0;
     
     const docRef = await addDoc(todosCollectionRef, {
       ...todo,
@@ -29,19 +32,19 @@ export const createTodo = async (todo: Omit<Todo, 'id' | 'createdAt' | 'updatedA
 export const getTodos = async (userId: string): Promise<Todo[]> => {
   try {
     const userDocRef = doc(db, 'users', userId);
-    const todosQuery = query(
-      collection(userDocRef, 'todos'),
-      orderBy('order', 'asc')
-    );
+    const todosCollectionRef = collection(userDocRef, 'todos');
+    const querySnapshot = await getDocs(todosCollectionRef);
     
-    const querySnapshot = await getDocs(todosQuery);
-    return querySnapshot.docs.map(doc => ({
+    const todos = querySnapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id,
       createdAt: doc.data().createdAt.toDate(),
       updatedAt: doc.data().updatedAt.toDate(),
       ...(doc.data().dueDate && { dueDate: doc.data().dueDate.toDate() })
     })) as Todo[];
+
+    // Sort in memory
+    return todos.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (error) {
     console.error('Error fetching todos:', error);
     throw error;

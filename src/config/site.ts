@@ -1,55 +1,29 @@
 export type SiteConfig = typeof siteConfig;
 
+const navItems = [
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Meetings",
+    href: "/meetings",
+  },
+  {
+    label: "To-dos",
+    href: "/todos",
+  },
+  
+];
+
 export const siteConfig = {
   name: "mgmt",
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
-    {
-      label: "Home",
-      href: "/",
-    },
-    {
-      label: "Meetings",
-      href: "/meetings",
-    },
-    {
-      label: "To-dos",
-      href: "/todos",
-    },
+    ...navItems,
   ],
   navMenuItems: [
-    {
-      label: "Profile",
-      href: "/profile",
-    },
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-    },
-    {
-      label: "Projects",
-      href: "/projects",
-    },
-    {
-      label: "Team",
-      href: "/team",
-    },
-    {
-      label: "Calendar",
-      href: "/calendar",
-    },
-    {
-      label: "Settings",
-      href: "/settings",
-    },
-    {
-      label: "Help & Feedback",
-      href: "/help-feedback",
-    },
-    {
-      label: "Logout",
-      href: "/logout",
-    },
+    ...navItems,
   ],
   links: {
     github: "https://github.com/frontio-ai/heroui",
