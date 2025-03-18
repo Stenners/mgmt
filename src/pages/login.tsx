@@ -14,7 +14,7 @@ export const Login = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -35,6 +35,6 @@ export const Login = () => {
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }; 
