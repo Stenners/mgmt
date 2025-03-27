@@ -3,10 +3,11 @@ import { title as titleStyle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { useAuth } from '@/contexts/AuthContext';
 import { MeetingNote } from '@/types/meeting';
-import { createMeetingNote, getMeetingNotes, updateMeetingNote, deleteMeetingNote } from '@/services/meetingService';
+import { createMeetingNote, getMeetingNotes, updateMeetingNote, generateAiSummary, deleteMeetingNote } from '@/services/meetingService';
 import { button as buttonStyles } from "@heroui/theme";
 import { Modal } from '@/components/Modal';
 import { TrashIcon } from '../components/icons/index';
+import { SkeletonCard } from '@/components/SkeletonCard';
 
 const MeetingsPage = () => {
   const { userData } = useAuth();
@@ -117,40 +118,53 @@ const MeetingsPage = () => {
     }
   };
 
-  if (!userData?.id || !userData?.organisations[0]) {
-    return (
-      <DefaultLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-500">
-            Please complete your profile setup to access meeting notes.
-          </div>
-        </div>
-      </DefaultLayout>
-    );
-  }
-
   return (
     <DefaultLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className={titleStyle()}>Meeting Notes</h2>
-          <button
-            onClick={() => setIsNewMeetingModalOpen(true)}
-            className={buttonStyles({
-              color: "primary",
-              radius: "md",
-              variant: "shadow"
-            })}
-          >
-            New Meeting
-          </button>
+          {userData?.id && (
+            <button
+              onClick={() => setIsNewMeetingModalOpen(true)}
+              className={buttonStyles({
+                color: "primary",
+                radius: "md",
+                variant: "shadow"
+              })}
+            >
+              New Meeting
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-6">
           {loading ? (
-            <div className="text-center">Loading...</div>
+            // Show 3 skeleton cards while loading
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : !userData?.id ? (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900">Welcome to Meeting Notes</h3>
+              <p className="mt-2 text-sm text-gray-500">Sign in to start managing your meetings</p>
+            </div>
           ) : meetings.length === 0 ? (
-            <div className="text-center text-gray-500">No meetings found</div>
+            <div className="text-center py-12 bg-white rounded-lg shadow">
+              <h3 className="text-lg font-medium text-gray-900">No meetings yet</h3>
+              <p className="mt-2 text-sm text-gray-500">Create your first meeting note to get started</p>
+              <button
+                onClick={() => setIsNewMeetingModalOpen(true)}
+                className={`${buttonStyles({
+                  color: "primary",
+                  radius: "md",
+                  variant: "light"
+                })} mt-4`}
+              >
+                Create Meeting Note
+              </button>
+            </div>
           ) : (
             meetings.map((meeting) => (
               <div

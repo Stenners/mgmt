@@ -2,34 +2,37 @@ import { useState, useEffect } from 'react';
 import { title as titleStyle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 import { useAuth } from '@/contexts/AuthContext';
-import { Todo as TodoType } from '@/types/todo';
+import { Todo } from '@/types/todo';
 import { createTodo, getTodos, updateTodo, deleteTodo } from '@/services/todoService';
 import { button as buttonStyles } from "@heroui/theme";
 import { Modal } from '@/components/Modal';
-import { Todo } from '@/components/Todo';
+import { Todo as TodoComponent } from '@/components/Todo';
+import { SkeletonCard } from '@/components/SkeletonCard';
 
 const TodosPage = () => {
   const { userData } = useAuth();
-  const [todos, setTodos] = useState<TodoType[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isNewTodoModalOpen, setIsNewTodoModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
   
   // Form states
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState<TodoType['priority']>('medium');
+  const [priority, setPriority] = useState<Todo['priority']>('medium');
 
   // Filter todos
-  const activeTodos = todos.filter(todo => !todo.completed).sort((a, b) => a.order - b.order);
+  const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
   useEffect(() => {
     if (userData?.id) {
       loadTodos(userData.id);
+    } else {
+      setLoading(false);
     }
   }, [userData]);
 
@@ -47,7 +50,7 @@ const TodosPage = () => {
   const handleCreateTodo = async () => {
     if (!userData?.organisations[0] || !userData?.id) return;
 
-    const newTodo: Omit<TodoType, 'id' | 'createdAt' | 'updatedAt'> = {
+    const newTodo: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'> = {
       title,
       description,
       completed: false,
@@ -71,7 +74,7 @@ const TodosPage = () => {
   const handleUpdateTodo = async () => {
     if (!userData?.id || !selectedTodo) return;
 
-    const updates: Partial<TodoType> = {
+    const updates: Partial<Todo> = {
       title,
       description,
       ...(dueDate && { dueDate: new Date(dueDate) }),
@@ -114,7 +117,7 @@ const TodosPage = () => {
     }
   };
 
-  const handleEditTodo = (todo: TodoType) => {
+  const handleEditTodo = (todo: Todo) => {
     setSelectedTodo(todo);
     setTitle(todo.title);
     setDescription(todo.description || '');
@@ -147,77 +150,93 @@ const TodosPage = () => {
     <DefaultLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className={titleStyle()}>To-dos</h2>
-          <button
-            onClick={() => setIsNewTodoModalOpen(true)}
-            className={buttonStyles({
-              color: "primary",
-              radius: "md",
-              variant: "shadow"
-            })}
-          >
-            New Todo
-          </button>
+          <h2 className={titleStyle()}>Todos</h2>
+          {userData?.id && (
+            <button
+              onClick={() => setIsNewTodoModalOpen(true)}
+              className={buttonStyles({
+                color: "primary",
+                radius: "md",
+                variant: "shadow"
+              })}
+            >
+              New Todo
+            </button>
+          )}
         </div>
 
         {loading ? (
-          <div className="text-center">Loading...</div>
+          <div className="space-y-4">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : !userData?.id ? (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900">Welcome to Todos</h3>
+            <p className="mt-2 text-sm text-gray-500">Sign in to start managing your tasks</p>
+          </div>
         ) : (
-          <div className="space-y-8">
-            {/* Active Todos Section */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Active</h3>
-              <div className="space-y-4">
-                {activeTodos.length === 0 ? (
-                  <div className="text-center text-gray-500 py-4">No active todos</div>
-                ) : (
-                  activeTodos.map((todo) => (
-                    <Todo
+          <div className="space-y-6">
+            <section>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Active</h3>
+              {activeTodos.length === 0 ? (
+                <div className="text-center py-8 bg-white rounded-lg shadow">
+                  <p className="text-gray-500">No active todos</p>
+                  <button
+                    onClick={() => setIsNewTodoModalOpen(true)}
+                    className={`${buttonStyles({
+                      color: "primary",
+                      radius: "md",
+                      variant: "light"
+                    })} mt-4`}
+                  >
+                    Create Todo
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {activeTodos.map(todo => (
+                    <TodoComponent
                       key={todo.id}
                       todo={todo}
                       onToggle={handleToggleTodo}
                       onDelete={handleDeleteTodo}
                       onEdit={handleEditTodo}
                     />
-                  ))
-                )}
-              </div>
-            </div>
+                  ))}
+                </div>
+              )}
+            </section>
 
-            {/* Completed Todos Section */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
-                <button
-                  onClick={() => setShowCompleted(!showCompleted)}
-                  className={buttonStyles({
-                    color: "default",
-                    radius: "md",
-                    variant: "light",
-                    size: "sm"
-                  })}
-                >
-                  {showCompleted ? 'Hide' : 'Show'} ({completedTodos.length})
-                </button>
-              </div>
-              {showCompleted && (
-                <div className="space-y-4">
-                  {completedTodos.length === 0 ? (
-                    <div className="text-center text-gray-500 py-4">No completed todos</div>
-                  ) : (
-                    completedTodos.map((todo) => (
-                      <Todo
+            {completedTodos.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Completed ({completedTodos.length})
+                  </h3>
+                  <button
+                    onClick={() => setShowCompleted(!showCompleted)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    {showCompleted ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {showCompleted && (
+                  <div className="space-y-4">
+                    {completedTodos.map(todo => (
+                      <TodoComponent
                         key={todo.id}
                         todo={todo}
                         onToggle={handleToggleTodo}
                         onDelete={handleDeleteTodo}
                         onEdit={handleEditTodo}
                       />
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         )}
 
@@ -262,7 +281,7 @@ const TodosPage = () => {
               <label className="block text-sm font-medium text-gray-700">Priority</label>
               <select
                 value={priority || 'medium'}
-                onChange={(e) => setPriority(e.target.value as TodoType['priority'])}
+                onChange={(e) => setPriority(e.target.value as Todo['priority'])}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
                 <option value="low">Low</option>
@@ -339,7 +358,7 @@ const TodosPage = () => {
               <label className="block text-sm font-medium text-gray-700">Priority</label>
               <select
                 value={priority || 'medium'}
-                onChange={(e) => setPriority(e.target.value as TodoType['priority'])}
+                onChange={(e) => setPriority(e.target.value as Todo['priority'])}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
                 <option value="low">Low</option>
