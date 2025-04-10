@@ -5,7 +5,7 @@ import { Login } from "@/pages/login";
 import IndexPage from "@/pages/index";
 import MeetingsPage from "@/pages/meetings";
 import TodosPage from "@/pages/todos";
-
+import AccountPage from "@/pages/account";
 function App() {
   return (
     <AuthProvider>
@@ -32,6 +32,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TodosPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <AccountPage />
             </ProtectedRoute>
           }
         />

@@ -1,14 +1,16 @@
 import { title } from "@/components/primitives";
+import { UserProfile } from "@/components/UserProfile";
 import DefaultLayout from "@/layouts/default";
 
-export default function DocsPage() {
+const AccountPage = () => {
   return (
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        <div className="inline-block max-w-lg text-center justify-center">
-          <h1 className={title()}>Pricing</h1>
-        </div>
+        <h1 className={title({ class: "mb-2" })}>Account Settings</h1>
+        <UserProfile />
       </section>
     </DefaultLayout>
   );
-}
+};
+
+export default AccountPage; 

@@ -1,5 +1,4 @@
 import { Link } from "@heroui/link";
-import { Input } from "@heroui/input";
 import {
   Navbar as HeroUINavbar,
   NavbarBrand,
@@ -11,30 +10,14 @@ import {
 } from "@heroui/navbar";
 import { link as linkStyles } from "@heroui/theme";
 import clsx from "clsx";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  SearchIcon,
-} from "@/components/icons";
 import { Logo } from "@/components/icons";
 
 export const Navbar = () => {
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+  const { userData } = useAuth();
+  const userInitials = userData?.displayName?.charAt(0).toUpperCase() || '?';
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
@@ -71,23 +54,38 @@ export const Navbar = () => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <NavbarItem className="hidden sm:flex gap-2">
-          <ThemeSwitch />
+        <NavbarItem>
+          <Link
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white hover:bg-primary-600 transition-colors"
+            href="/account"
+          >
+            {userInitials}
+          </Link>
         </NavbarItem>
-        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <ThemeSwitch />
+        <NavbarItem>
+          <Link
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white hover:bg-primary-600 transition-colors"
+            href="/account"
+          >
+            {userInitials}
+          </Link>
+        </NavbarItem>
         <NavbarMenuToggle />
       </NavbarContent>
 
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
+      <NavbarMenu className="bg-background">
+        <div className="mx-4 mt-2 flex flex-col gap-4">
+          {siteConfig.navItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
               <Link
+                className={clsx(
+                  "w-full",
+                  linkStyles({ color: "foreground" }),
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
+                )}
                 color="foreground"
                 href={item.href}
                 size="lg"
